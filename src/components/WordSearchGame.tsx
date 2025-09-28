@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { GameButton } from '@/components/ui/game-button';
 import { Card } from '@/components/ui/card';
+import html2canvas from 'html2canvas';
+import { toast } from 'sonner';
 
 interface Position {
   row: number;
@@ -22,12 +24,67 @@ const HIGHLIGHT_COLORS = [
   'mystical'
 ];
 
-// 幸運關鍵字庫
+// 幸運關鍵字庫 + 常用英文單字
 const KEYWORDS = [
   'PEACE', 'LOVE', 'MONEY', 'HEALTH', 'FREEDOM', 'PURPOSE', 'MIRACLES', 
   'STRENGTH', 'FAMILY', 'SUCCESS', 'WISDOM', 'ENERGY', 'HOPE', 'JOY',
-  'TRUST', 'POWER', 'GROWTH', 'MAGIC', 'LIGHT', 'DREAMS'
+  'TRUST', 'POWER', 'GROWTH', 'MAGIC', 'LIGHT', 'DREAMS', 'FUTURE',
+  'HAPPY', 'LUCKY', 'BRAVE', 'KIND', 'SMART', 'STRONG', 'MIND', 'SOUL',
+  'HEART', 'FAITH', 'GOALS', 'WINS', 'SHINE', 'GLOW', 'RISE', 'FLY'
 ];
+
+// 英文單字字典（簡化版本，實際應用可使用更完整的字典）
+const COMMON_WORDS = new Set([
+  'THE', 'AND', 'FOR', 'ARE', 'BUT', 'NOT', 'YOU', 'ALL', 'CAN', 'HER', 'WAS', 'ONE', 'OUR',
+  'HAD', 'OUT', 'DAY', 'GET', 'HAS', 'HIM', 'HOW', 'ITS', 'MAY', 'NEW', 'NOW', 'OLD', 'SEE',
+  'TWO', 'WHO', 'BOY', 'DID', 'WAY', 'USE', 'MAN', 'SHE', 'SAY', 'HIS', 'HAS', 'GOD', 'SET',
+  'RUN', 'WIN', 'TOP', 'TRY', 'BIG', 'BAD', 'END', 'FUN', 'SUN', 'SKY', 'CAR', 'DOG', 'CAT',
+  'LIFE', 'TIME', 'WORK', 'WORD', 'GOOD', 'YEAR', 'MAKE', 'KNOW', 'BACK', 'COME', 'TAKE',
+  'WANT', 'GIVE', 'HAND', 'PART', 'FIND', 'TELL', 'TURN', 'MOVE', 'PLAY', 'SEEM', 'LOOK',
+  'CALL', 'FEEL', 'HELP', 'KEEP', 'SHOW', 'MEAN', 'NEED', 'LAST', 'LONG', 'BEST', 'HOME',
+  ...KEYWORDS
+]);
+
+// 幸運解讀字典
+const FORTUNE_MEANINGS = {
+  'PEACE': '你將在 2025 找到心靈的平靜與和諧。',
+  'LOVE': '愛情與友情會為你帶來無限能量。',
+  'MONEY': '財運將隨著你的努力而豐收。',
+  'HEALTH': '身心健康是你最大的財富。',
+  'FREEDOM': '自由意志將指引你走向正確的道路。',
+  'PURPOSE': '你會找到人生真正的使命。',
+  'MIRACLES': '奇蹟將在你最需要的時候出現。',
+  'STRENGTH': '內在力量讓你能克服一切困難。',
+  'FAMILY': '家人的支持是你最大的依靠。',
+  'SUCCESS': '成功正在向你招手。',
+  'WISDOM': '智慧讓你在迷茫中找到方向。',
+  'ENERGY': '正能量將充滿你的每一天。',
+  'HOPE': '希望之光照亮你前進的路。',
+  'JOY': '快樂將成為你生活的主旋律。',
+  'TRUST': '信任將為你帶來珍貴的緣分。',
+  'POWER': '你擁有改變現實的力量。',
+  'GROWTH': '持續成長讓你越來越強大。',
+  'MAGIC': '生活中的小確幸充滿魔力。',
+  'LIGHT': '光明將驅散所有的陰霾。',
+  'DREAMS': '夢想正在一步步實現。',
+  'FUTURE': '美好的未來正等待著你。',
+  'HAPPY': '幸福是你的人生底色。',
+  'LUCKY': '幸運女神眷顧著你。',
+  'BRAVE': '勇氣讓你無所畏懼。',
+  'KIND': '善良的心會為你帶來福報。',
+  'SMART': '聰明才智是你的利器。',
+  'STRONG': '堅強的意志助你渡過難關。',
+  'MIND': '清晰的思維指引你做出正確決定。',
+  'SOUL': '靈魂的純淨讓你散發光芒。',
+  'HEART': '真心誠意會得到回報。',
+  'FAITH': '信念的力量讓一切皆有可能。',
+  'GOALS': '目標明確讓你勇往直前。',
+  'WINS': '勝利屬於堅持不懈的你。',
+  'SHINE': '你的光芒將照亮周圍的人。',
+  'GLOW': '內在的光輝讓你與眾不同。',
+  'RISE': '你會在困境中崛起。',
+  'FLY': '自由翱翔是你的天性。'
+};
 
 const generateGrid = (): string[][] => {
   const grid: string[][] = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
@@ -85,7 +142,7 @@ const generateGrid = (): string[][] => {
 };
 
 interface WordSearchGameProps {
-  onGameComplete: (words: string[]) => void;
+  onGameComplete?: (words: string[]) => void;
 }
 
 export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
@@ -93,6 +150,8 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
   const [selectedWords, setSelectedWords] = useState<SelectedWord[]>([]);
   const [currentSelection, setCurrentSelection] = useState<Position[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
+  const [gameCompleted, setGameCompleted] = useState(false);
+  const [fortuneMessage, setFortuneMessage] = useState<string>('');
   const gridRef = useRef<HTMLDivElement>(null);
 
   const getPositionFromEvent = useCallback((e: any): Position | null => {
@@ -133,23 +192,34 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
       const start = currentSelection[0];
       const positions: Position[] = [];
       
-      // 計算從起點到當前點的直線路徑
+      // 只允許直線選擇（水平、垂直、對角線）
       const deltaRow = pos.row - start.row;
       const deltaCol = pos.col - start.col;
-      const steps = Math.max(Math.abs(deltaRow), Math.abs(deltaCol));
       
-      if (steps > 0) {
-        const stepRow = deltaRow / steps;
-        const stepCol = deltaCol / steps;
+      // 檢查是否為有效的直線方向
+      const isHorizontal = deltaRow === 0;
+      const isVertical = deltaCol === 0;
+      const isDiagonal = Math.abs(deltaRow) === Math.abs(deltaCol);
+      
+      if (isHorizontal || isVertical || isDiagonal) {
+        const steps = Math.max(Math.abs(deltaRow), Math.abs(deltaCol));
         
-        for (let i = 0; i <= steps; i++) {
-          const row = Math.round(start.row + stepRow * i);
-          const col = Math.round(start.col + stepCol * i);
-          if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
-            positions.push({ row, col });
+        if (steps > 0) {
+          const stepRow = deltaRow / steps;
+          const stepCol = deltaCol / steps;
+          
+          for (let i = 0; i <= steps; i++) {
+            const row = Math.round(start.row + stepRow * i);
+            const col = Math.round(start.col + stepCol * i);
+            if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
+              positions.push({ row, col });
+            }
           }
+        } else {
+          positions.push(start);
         }
       } else {
+        // 如果不是直線，只保留起點
         positions.push(start);
       }
       
@@ -161,7 +231,8 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
     if (currentSelection.length > 1) {
       const word = currentSelection.map(pos => grid[pos.row][pos.col]).join('');
       
-      if (word.length >= 3 && !selectedWords.some(w => w.word === word)) {
+      // 檢查是否為有效的英文單字，且長度至少3個字母
+      if (word.length >= 3 && COMMON_WORDS.has(word) && !selectedWords.some(w => w.word === word)) {
         const colorIndex = selectedWords.length % HIGHLIGHT_COLORS.length;
         const newWord: SelectedWord = {
           word,
@@ -169,6 +240,9 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
           color: HIGHLIGHT_COLORS[colorIndex]
         };
         setSelectedWords(prev => [...prev, newWord]);
+        toast.success(`找到單字: ${word}! ✨`);
+      } else if (word.length >= 3 && !COMMON_WORDS.has(word)) {
+        toast.error(`"${word}" 不是有效的英文單字`);
       }
     }
     
@@ -221,20 +295,60 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
     return `${baseClass} bg-grid-dark hover:bg-mystical/20 text-foreground/80`;
   };
 
+  const generateFortune = (words: string[]): string => {
+    const meanings = words.map(word => FORTUNE_MEANINGS[word] || '這個單字將為你帶來特別的能量。').join(' ');
+    return `🔮 你的 2025 年幸運訊息：\n\n${meanings}\n\n✨ 記住這些單字，它們是你今年的幸運密碼！`;
+  };
+
   const handleShuffle = () => {
     setGrid(generateGrid());
     setSelectedWords([]);
     setCurrentSelection([]);
+    setGameCompleted(false);
+    setFortuneMessage('');
   };
 
   const handleReset = () => {
     setSelectedWords([]);
     setCurrentSelection([]);
+    setGameCompleted(false);
+    setFortuneMessage('');
   };
 
   const handleFinish = () => {
     if (selectedWords.length > 0) {
-      onGameComplete(selectedWords.map(w => w.word));
+      const words = selectedWords.map(w => w.word);
+      const fortune = generateFortune(words);
+      setFortuneMessage(fortune);
+      setGameCompleted(true);
+      onGameComplete?.(words);
+      toast.success('🎉 恭喜完成！你的幸運訊息已生成！');
+    }
+  };
+
+  const handleShareImage = async () => {
+    try {
+      toast.loading('正在生成分享圖片...');
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const element = document.body;
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#1a1625',
+        scale: 1,
+        useCORS: true,
+        allowTaint: true,
+      });
+      
+      const link = document.createElement('a');
+      link.download = `my-2025-mantra-${Date.now()}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+      
+      toast.success('📸 分享圖片已生成並下載！');
+    } catch (error) {
+      console.error('生成圖片失敗:', error);
+      toast.error('生成圖片時發生錯誤，請稍後再試');
     }
   };
 
@@ -285,22 +399,43 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
           </div>
         )}
 
-        <div className="flex gap-3 justify-center flex-wrap">
-          <GameButton variant="ghost-neon" onClick={handleShuffle}>
-            🔄 重新洗牌
-          </GameButton>
-          <GameButton variant="danger" onClick={handleReset}>
-            🧹 重置
-          </GameButton>
-          <GameButton 
-            variant="neon" 
-            onClick={handleFinish}
-            disabled={selectedWords.length === 0}
-            glowing={selectedWords.length > 0}
-          >
-            ✨ 完成 ({selectedWords.length})
-          </GameButton>
-        </div>
+        {!gameCompleted ? (
+          <div className="flex gap-3 justify-center flex-wrap">
+            <GameButton variant="ghost-neon" onClick={handleShuffle}>
+              🔄 重新洗牌
+            </GameButton>
+            <GameButton variant="danger" onClick={handleReset}>
+              🧹 重置
+            </GameButton>
+            <GameButton 
+              variant="neon" 
+              onClick={handleFinish}
+              disabled={selectedWords.length === 0}
+              glowing={selectedWords.length > 0}
+            >
+              ✨ 完成 ({selectedWords.length})
+            </GameButton>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="p-6 bg-mystical/20 rounded-lg border border-mystical/30">
+                <div className="whitespace-pre-line text-foreground/90 leading-relaxed">
+                  {fortuneMessage}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 justify-center flex-wrap">
+              <GameButton variant="neon" onClick={handleShuffle}>
+                🎮 再玩一次
+              </GameButton>
+              <GameButton variant="ghost-neon" onClick={handleShareImage}>
+                📸 分享圖片
+              </GameButton>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );

@@ -113,6 +113,20 @@
     box-shadow: 0 0 10px hsl(var(--neon-pink) / 0.6);
   }
   
+  .neon-blue {
+    background-color: hsl(var(--neon-blue) / 0.8);
+    box-shadow: 0 0 10px hsl(var(--neon-blue) / 0.6);
+  }
+  
+  .mystical {
+    background-color: hsl(var(--mystical-purple) / 0.8);
+    box-shadow: 0 0 10px hsl(var(--mystical-purple) / 0.6);
+  }
+  
+  .bg-grid-dark {
+    background-color: hsl(var(--dark-grid));
+  }
+  
   .pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite alternate;
   }
