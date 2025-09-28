@@ -180,13 +180,28 @@ export const WordSearchGame = ({
   const getPositionFromEvent = useCallback((e: any): Position | null => {
     if (!gridRef.current) return null;
     const rect = gridRef.current.getBoundingClientRect();
+    
+    // 獲取觸摸或滑鼠位置
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
+    // 計算相對於格子區域的位置
     const x = clientX - rect.left;
     const y = clientY - rect.top;
-    const cellSize = rect.width / GRID_SIZE;
-    const col = Math.floor(x / cellSize);
-    const row = Math.floor(y / cellSize);
+    
+    // 計算格子大小（扣除 padding）
+    const gridPadding = window.innerWidth >= 640 ? 24 : 16; // sm:p-3 = 12px*2, p-2 = 8px*2
+    const actualGridWidth = rect.width - gridPadding;
+    const actualGridHeight = rect.height - gridPadding;
+    const cellSize = actualGridWidth / GRID_SIZE;
+    
+    // 調整座標以考慮 padding
+    const adjustedX = x - gridPadding / 2;
+    const adjustedY = y - gridPadding / 2;
+    
+    const col = Math.floor(adjustedX / cellSize);
+    const row = Math.floor(adjustedY / cellSize);
+    
     if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
       return {
         row,
@@ -293,7 +308,7 @@ export const WordSearchGame = ({
     };
   }, [isSelecting, updateSelection, endSelection]);
   const getCellClass = (row: number, col: number): string => {
-    const baseClass = "w-6 h-6 sm:w-8 sm:h-8 border border-border/30 flex items-center justify-center text-xs sm:text-sm font-mono cursor-pointer select-none transition-all duration-200";
+    const baseClass = "w-8 h-8 sm:w-10 sm:h-10 border border-border/30 flex items-center justify-center text-sm sm:text-base font-mono cursor-pointer select-none transition-all duration-200";
 
     // 檢查是否在當前選擇中
     if (currentSelection.some(pos => pos.row === row && pos.col === col)) {
@@ -406,7 +421,7 @@ export const WordSearchGame = ({
           </p>
         </div>
         
-        <div ref={gridRef} className="grid gap-0 w-full max-w-sm sm:max-w-md mx-auto mb-6 bg-background/50 p-1 sm:p-2 rounded-lg shadow-deep touch-none" style={{
+        <div ref={gridRef} className="grid gap-0 w-full max-w-md sm:max-w-lg mx-auto mb-6 bg-background/50 p-2 sm:p-3 rounded-lg shadow-deep touch-none" style={{
         gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
         aspectRatio: '1'
       }} onMouseDown={startSelection} onTouchStart={startSelection}>
