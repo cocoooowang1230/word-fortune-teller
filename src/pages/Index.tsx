@@ -6,10 +6,8 @@ const Index = () => {
   return <div className="min-h-screen bg-game-bg flex items-center justify-center p-4">
       <Card className="max-w-2xl w-full p-8 text-center bg-card/90 backdrop-blur-sm shadow-deep">
         <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold glow-text mb-4 animate-float">
-            🔮 Word Search Mantra
-          </h1>
-          <h2 className="text-2xl md:text-3xl font-semibold text-mystical mb-6">尋找你的 2026 年度咒語</h2>
+          <h1 className="text-4xl md:text-5xl font-bold glow-text mb-4 animate-float">🔮 Word Search </h1>
+          <h2 className="text-2xl md:text-3xl font-semibold text-mystical mb-6">找出屬於你的 2025 關鍵字 🔍</h2>
         </div>
         
         <div className="bg-background/20 rounded-lg p-6 mb-8 border border-mystical/30">
@@ -30,9 +28,7 @@ const Index = () => {
             🎮 開始遊戲
           </GameButton>
           
-          <p className="text-muted-foreground text-sm">
-            準備好發現你的神秘力量了嗎？
-          </p>
+          <p className="text-muted-foreground text-sm">這些字就是你 2025 的縮影，看看你的一年是什麼主題吧 ✨</p>
         </div>
         
         <div className="mt-8 text-center">
