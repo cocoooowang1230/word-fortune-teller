@@ -292,7 +292,7 @@ export const WordSearchGame = ({
     return `${baseClass} bg-grid-dark hover:bg-mystical/20 text-foreground/80`;
   };
   const generateFortune = (): string => {
-    return "🔮 2025 的宇宙提示：\n這些字會在今年為你開啟新的可能。";
+    return "📖 2025 回顧小語：\n這些字會在今年為你開啟新的可能。";
   };
   const handleShuffle = () => {
     setGrid(generateGrid());
