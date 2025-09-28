@@ -108,10 +108,10 @@ const generateGrid = (): string[][] => {
   // 隨機放置關鍵字和常用單字
   const placedWords = new Set<string>();
   const availableWords = [...KEYWORDS, ...Array.from(COMMON_WORDS).filter(w => w.length >= 3 && w.length <= 8)];
-  const targetWordCount = Math.min(15, availableWords.length); // 增加到15個單字
+  const targetWordCount = Math.min(50, availableWords.length); // 增加到50個單字
   
   let attempts = 0;
-  while (placedWords.size < targetWordCount && attempts < 1000) {
+  while (placedWords.size < targetWordCount && attempts < 2000) {
     attempts++;
     const word = availableWords[Math.floor(Math.random() * availableWords.length)];
     if (placedWords.has(word)) continue;
