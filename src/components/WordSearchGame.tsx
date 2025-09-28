@@ -383,7 +383,7 @@ export const WordSearchGame = ({
   return <div className="flex flex-col items-center gap-6 p-4">
       <Card className="p-6 bg-card/80 backdrop-blur-sm game-container">
         <div className="text-center mb-4">
-          <h2 className="text-2xl font-bold glow-text mb-2">📖 2025 回顧小語：</h2>
+          <h2 className="text-2xl font-bold glow-text mb-2">✨2025 REWIND✨</h2>
           <p className="text-muted-foreground">
             已選擇 {selectedWords.length}/5 個單字
           </p>
