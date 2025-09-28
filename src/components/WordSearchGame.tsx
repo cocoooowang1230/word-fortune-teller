@@ -308,7 +308,7 @@ export const WordSearchGame = ({
     };
   }, [isSelecting, updateSelection, endSelection]);
   const getCellClass = (row: number, col: number): string => {
-    const baseClass = "w-full aspect-square border border-border/30 flex items-center justify-center text-xs sm:text-sm font-mono cursor-pointer select-none transition-all duration-200";
+    const baseClass = "w-full aspect-square border border-border/30 flex items-center justify-center text-sm sm:text-base font-mono cursor-pointer select-none transition-all duration-200";
 
     // 檢查是否在當前選擇中
     if (currentSelection.some(pos => pos.row === row && pos.col === col)) {
@@ -413,7 +413,7 @@ export const WordSearchGame = ({
     }
   };
   return <div className="flex flex-col items-center gap-4 sm:gap-6 p-2 sm:p-4 w-full">
-      <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm game-container w-full max-w-2xl">
+      <Card className="p-3 sm:p-6 bg-card/80 backdrop-blur-sm game-container w-full max-w-xs sm:max-w-2xl">
         <div className="text-center mb-4">
           <h2 className="text-xl sm:text-2xl font-bold glow-text mb-2">✨2025 REWIND✨</h2>
           <p className="text-sm sm:text-base text-muted-foreground">
@@ -421,7 +421,7 @@ export const WordSearchGame = ({
           </p>
         </div>
         
-        <div ref={gridRef} className="grid gap-0 w-full mx-auto mb-6 bg-background/50 p-2 sm:p-3 rounded-lg shadow-deep touch-none" style={{
+        <div ref={gridRef} className="grid gap-0 w-full max-w-xs sm:max-w-lg mx-auto mb-6 bg-background/50 p-2 sm:p-3 rounded-lg shadow-deep touch-none" style={{
         gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
         aspectRatio: '1'
       }} onMouseDown={startSelection} onTouchStart={startSelection}>
