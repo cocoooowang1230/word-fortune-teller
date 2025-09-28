@@ -33,15 +33,31 @@ const KEYWORDS = [
   'HEART', 'FAITH', 'GOALS', 'WINS', 'SHINE', 'GLOW', 'RISE', 'FLY'
 ];
 
-// 英文單字字典（簡化版本，實際應用可使用更完整的字典）
+// 英文單字字典（擴展版本，包含更多常用詞）
 const COMMON_WORDS = new Set([
+  // 三字母單字
   'THE', 'AND', 'FOR', 'ARE', 'BUT', 'NOT', 'YOU', 'ALL', 'CAN', 'HER', 'WAS', 'ONE', 'OUR',
   'HAD', 'OUT', 'DAY', 'GET', 'HAS', 'HIM', 'HOW', 'ITS', 'MAY', 'NEW', 'NOW', 'OLD', 'SEE',
-  'TWO', 'WHO', 'BOY', 'DID', 'WAY', 'USE', 'MAN', 'SHE', 'SAY', 'HIS', 'HAS', 'GOD', 'SET',
-  'RUN', 'WIN', 'TOP', 'TRY', 'BIG', 'BAD', 'END', 'FUN', 'SUN', 'SKY', 'CAR', 'DOG', 'CAT',
-  'LIFE', 'TIME', 'WORK', 'WORD', 'GOOD', 'YEAR', 'MAKE', 'KNOW', 'BACK', 'COME', 'TAKE',
-  'WANT', 'GIVE', 'HAND', 'PART', 'FIND', 'TELL', 'TURN', 'MOVE', 'PLAY', 'SEEM', 'LOOK',
-  'CALL', 'FEEL', 'HELP', 'KEEP', 'SHOW', 'MEAN', 'NEED', 'LAST', 'LONG', 'BEST', 'HOME',
+  'TWO', 'WHO', 'BOY', 'DID', 'WAY', 'USE', 'MAN', 'SHE', 'SAY', 'HIS', 'GOD', 'SET', 'END',
+  'RUN', 'WIN', 'TOP', 'TRY', 'BIG', 'BAD', 'FUN', 'SUN', 'SKY', 'CAR', 'DOG', 'CAT', 'BOX',
+  'RED', 'YES', 'EAT', 'PUT', 'LET', 'ASK', 'AGO', 'ARM', 'EYE', 'EAR', 'LEG', 'CUP', 'KEY',
+  'MAP', 'PEN', 'BAG', 'HAT', 'BED', 'EGG', 'ICE', 'JOB', 'LAW', 'OIL', 'PIG', 'SEA', 'TAX',
+  'WAR', 'ZOO', 'ART', 'BUS', 'CUT', 'DRY', 'FAR', 'GUN', 'HIT', 'ILL', 'JOY', 'KID', 'LIE',
+  'MOM', 'NET', 'OWN', 'PAY', 'RAW', 'SIT', 'TOY', 'VAN', 'WET', 'MIX', 'FIX', 'SIX', 'FOX',
+  
+  // 四字母單字
+  'LOVE', 'LIFE', 'TIME', 'WORK', 'WORD', 'GOOD', 'YEAR', 'MAKE', 'KNOW', 'BACK', 'COME', 'TAKE',
+  'WANT', 'GIVE', 'HAND', 'PART', 'FIND', 'TELL', 'TURN', 'MOVE', 'PLAY', 'SEEM', 'LOOK', 'FEEL',
+  'CALL', 'HELP', 'KEEP', 'SHOW', 'MEAN', 'NEED', 'LAST', 'LONG', 'BEST', 'HOME', 'BOTH', 'SIDE',
+  'IDEA', 'HEAD', 'FACE', 'FACT', 'HAND', 'HIGH', 'EACH', 'MOST', 'SUCH', 'VERY', 'WHAT', 'WITH',
+  'HAVE', 'FROM', 'THEY', 'THIS', 'BEEN', 'HAVE', 'THEIR', 'SAID', 'EACH', 'WHICH', 'LIKE', 'ONLY',
+  'BOOK', 'TREE', 'DOOR', 'ROOM', 'FOOD', 'GAME', 'HERO', 'KING', 'MOON', 'STAR', 'WIND', 'FIRE',
+  'FISH', 'BIRD', 'BEAR', 'LION', 'WOLF', 'DUCK', 'FROG', 'CAKE', 'MILK', 'RICE', 'SOUP', 'MEAT',
+  'BLUE', 'GOLD', 'PINK', 'GREY', 'DARK', 'WARM', 'COLD', 'FAST', 'SLOW', 'EASY', 'HARD', 'SOFT',
+  'TALL', 'WIDE', 'DEEP', 'NEAR', 'SAFE', 'RICH', 'POOR', 'FULL', 'GLAD', 'BUSY', 'FREE', 'OPEN',
+  'REAL', 'TRUE', 'SURE', 'NICE', 'KIND', 'COOL', 'CUTE', 'FINE', 'WILD', 'CALM', 'WISE', 'FAIR',
+  
+  // 關鍵字（已包含在字典中）
   ...KEYWORDS
 ]);
 
@@ -89,12 +105,15 @@ const FORTUNE_MEANINGS = {
 const generateGrid = (): string[][] => {
   const grid: string[][] = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
   
-  // 隨機放置關鍵字
+  // 隨機放置關鍵字和常用單字
   const placedWords = new Set<string>();
-  const targetWordCount = Math.min(8, KEYWORDS.length);
+  const availableWords = [...KEYWORDS, ...Array.from(COMMON_WORDS).filter(w => w.length >= 3 && w.length <= 8)];
+  const targetWordCount = Math.min(15, availableWords.length); // 增加到15個單字
   
-  while (placedWords.size < targetWordCount) {
-    const word = KEYWORDS[Math.floor(Math.random() * KEYWORDS.length)];
+  let attempts = 0;
+  while (placedWords.size < targetWordCount && attempts < 1000) {
+    attempts++;
+    const word = availableWords[Math.floor(Math.random() * availableWords.length)];
     if (placedWords.has(word)) continue;
     
     const directions = [
@@ -102,6 +121,10 @@ const generateGrid = (): string[][] => {
       [1, 0],   // 垂直
       [1, 1],   // 對角線
       [-1, 1],  // 反對角線
+      [0, -1],  // 反水平
+      [-1, 0],  // 反垂直
+      [-1, -1], // 反對角線
+      [1, -1],  // 反對角線
     ];
     
     const direction = directions[Math.floor(Math.random() * directions.length)];
@@ -110,12 +133,24 @@ const generateGrid = (): string[][] => {
     
     // 檢查是否能放置
     let canPlace = true;
+    const positions: Position[] = [];
     for (let i = 0; i < word.length; i++) {
       const row = startRow + direction[0] * i;
       const col = startCol + direction[1] * i;
       if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) {
         canPlace = false;
         break;
+      }
+      positions.push({ row, col });
+    }
+    
+    // 檢查是否與已放置的字母衝突
+    if (canPlace) {
+      for (const pos of positions) {
+        if (grid[pos.row][pos.col] !== '' && grid[pos.row][pos.col] !== word[positions.indexOf(pos)]) {
+          canPlace = false;
+          break;
+        }
       }
     }
     
@@ -327,29 +362,8 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
   };
 
   const handleShareImage = async () => {
-    try {
-      toast.loading('正在生成分享圖片...');
-      
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const element = document.body;
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#1a1625',
-        scale: 1,
-        useCORS: true,
-        allowTaint: true,
-      });
-      
-      const link = document.createElement('a');
-      link.download = `my-2025-mantra-${Date.now()}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-      
-      toast.success('📸 分享圖片已生成並下載！');
-    } catch (error) {
-      console.error('生成圖片失敗:', error);
-      toast.error('生成圖片時發生錯誤，請稍後再試');
-    }
+    // 移除分享圖片功能
+    toast.info('分享功能已移除');
   };
 
   return (
@@ -429,9 +443,6 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
             <div className="flex gap-3 justify-center flex-wrap">
               <GameButton variant="neon" onClick={handleShuffle}>
                 🎮 再玩一次
-              </GameButton>
-              <GameButton variant="ghost-neon" onClick={handleShareImage}>
-                📸 分享圖片
               </GameButton>
             </div>
           </div>
