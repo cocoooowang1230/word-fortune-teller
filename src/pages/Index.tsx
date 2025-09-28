@@ -1,12 +1,9 @@
 import { GameButton } from '@/components/ui/game-button';
 import { Card } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-
 const Index = () => {
   const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-game-bg flex items-center justify-center p-4">
+  return <div className="min-h-screen bg-game-bg flex items-center justify-center p-4">
       <Card className="max-w-2xl w-full p-8 text-center bg-card/90 backdrop-blur-sm shadow-deep">
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold glow-text mb-4 animate-float">
@@ -24,19 +21,14 @@ const Index = () => {
           <div className="text-foreground/90 space-y-3 text-left">
             <p>📝 在字母陣中找到 3-5 個有意義的單字</p>
             <p>👆 用手指或滑鼠劃過字母來選擇單字</p>
-            <p>💫 選中的字母會發出神秘的螢光效果</p>
-            <p>🔮 完成後獲得專屬的 2025 幸運解讀</p>
-            <p>📱 可生成美麗的分享圖片</p>
+            
+            
+            
           </div>
         </div>
         
         <div className="space-y-4">
-          <GameButton 
-            variant="neon" 
-            size="lg"
-            onClick={() => navigate('/game')}
-            className="w-full md:w-auto px-8 py-4 text-xl animate-pulse-glow"
-          >
+          <GameButton variant="neon" size="lg" onClick={() => navigate('/game')} className="w-full md:w-auto px-8 py-4 text-xl animate-pulse-glow">
             🎮 開始遊戲
           </GameButton>
           
@@ -55,8 +47,6 @@ const Index = () => {
           </div>
         </div>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
