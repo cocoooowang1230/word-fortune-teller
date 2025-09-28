@@ -9,9 +9,7 @@ const Index = () => {
           <h1 className="text-4xl md:text-5xl font-bold glow-text mb-4 animate-float">
             🔮 Word Search Mantra
           </h1>
-          <h2 className="text-2xl md:text-3xl font-semibold text-mystical mb-6">
-            尋找你的 2025 年度咒語
-          </h2>
+          <h2 className="text-2xl md:text-3xl font-semibold text-mystical mb-6">尋找你的 2026 年度咒語</h2>
         </div>
         
         <div className="bg-background/20 rounded-lg p-6 mb-8 border border-mystical/30">
