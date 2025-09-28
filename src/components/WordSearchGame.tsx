@@ -33,7 +33,7 @@ const KEYWORDS = [
   'HEART', 'FAITH', 'GOALS', 'WINS', 'SHINE', 'GLOW', 'RISE', 'FLY'
 ];
 
-// 英文單字字典（擴展版本，包含更多常用詞）
+// 英文單字字典（完整版本，包含更多常用詞）
 const COMMON_WORDS = new Set([
   // 三字母單字
   'THE', 'AND', 'FOR', 'ARE', 'BUT', 'NOT', 'YOU', 'ALL', 'CAN', 'HER', 'WAS', 'ONE', 'OUR',
@@ -44,18 +44,38 @@ const COMMON_WORDS = new Set([
   'MAP', 'PEN', 'BAG', 'HAT', 'BED', 'EGG', 'ICE', 'JOB', 'LAW', 'OIL', 'PIG', 'SEA', 'TAX',
   'WAR', 'ZOO', 'ART', 'BUS', 'CUT', 'DRY', 'FAR', 'GUN', 'HIT', 'ILL', 'JOY', 'KID', 'LIE',
   'MOM', 'NET', 'OWN', 'PAY', 'RAW', 'SIT', 'TOY', 'VAN', 'WET', 'MIX', 'FIX', 'SIX', 'FOX',
+  'AGE', 'AIR', 'ANY', 'BAG', 'BAR', 'BAT', 'BIT', 'BOW', 'BUY', 'COW', 'CRY', 'DIE', 'DIG',
+  'EAR', 'EYE', 'FEW', 'FLY', 'GAP', 'GAS', 'HAM', 'HOT', 'INK', 'JAM', 'LAY', 'LOG', 'LOW',
+  'MAD', 'MUD', 'NUT', 'OFF', 'POT', 'RAG', 'ROW', 'SAD', 'SAW', 'SEW', 'SHY', 'TAB', 'TEN',
+  'TOE', 'TON', 'TOP', 'TUG', 'WIG', 'WIN', 'ZIP', 'ADD', 'BIG', 'DIM', 'FIT', 'HOT', 'LID',
   
   // 四字母單字
   'LOVE', 'LIFE', 'TIME', 'WORK', 'WORD', 'GOOD', 'YEAR', 'MAKE', 'KNOW', 'BACK', 'COME', 'TAKE',
   'WANT', 'GIVE', 'HAND', 'PART', 'FIND', 'TELL', 'TURN', 'MOVE', 'PLAY', 'SEEM', 'LOOK', 'FEEL',
   'CALL', 'HELP', 'KEEP', 'SHOW', 'MEAN', 'NEED', 'LAST', 'LONG', 'BEST', 'HOME', 'BOTH', 'SIDE',
   'IDEA', 'HEAD', 'FACE', 'FACT', 'HAND', 'HIGH', 'EACH', 'MOST', 'SUCH', 'VERY', 'WHAT', 'WITH',
-  'HAVE', 'FROM', 'THEY', 'THIS', 'BEEN', 'HAVE', 'THEIR', 'SAID', 'EACH', 'WHICH', 'LIKE', 'ONLY',
+  'HAVE', 'FROM', 'THEY', 'THIS', 'BEEN', 'HAVE', 'SAID', 'EACH', 'LIKE', 'ONLY', 'SOME', 'ALSO',
   'BOOK', 'TREE', 'DOOR', 'ROOM', 'FOOD', 'GAME', 'HERO', 'KING', 'MOON', 'STAR', 'WIND', 'FIRE',
   'FISH', 'BIRD', 'BEAR', 'LION', 'WOLF', 'DUCK', 'FROG', 'CAKE', 'MILK', 'RICE', 'SOUP', 'MEAT',
   'BLUE', 'GOLD', 'PINK', 'GREY', 'DARK', 'WARM', 'COLD', 'FAST', 'SLOW', 'EASY', 'HARD', 'SOFT',
   'TALL', 'WIDE', 'DEEP', 'NEAR', 'SAFE', 'RICH', 'POOR', 'FULL', 'GLAD', 'BUSY', 'FREE', 'OPEN',
   'REAL', 'TRUE', 'SURE', 'NICE', 'KIND', 'COOL', 'CUTE', 'FINE', 'WILD', 'CALM', 'WISE', 'FAIR',
+  'MINE', 'CARE', 'HOPE', 'HURT', 'JOKE', 'KISS', 'LAKE', 'LEAN', 'MALL', 'NAME', 'OKAY', 'PACE',
+  'QUIZ', 'RACE', 'SALE', 'TALK', 'UGLY', 'VARY', 'WAKE', 'ZERO', 'ABLE', 'BEAR', 'CODE', 'DEAL',
+  'EDGE', 'FLAT', 'GAIN', 'HATE', 'ITEM', 'JOIN', 'KICK', 'LUCK', 'MASK', 'NOTE', 'OVAL', 'PULL',
+  'QUIT', 'ROCK', 'SAVE', 'TAPE', 'USED', 'VIEW', 'WALK', 'YARD', 'ZONE', 'ARMY', 'BOAT', 'COIN',
+  'DRAW', 'EVEN', 'FLAG', 'GOLF', 'HALT', 'IRON', 'JOKE', 'KNEE', 'LAWN', 'MAIL', 'NAVY', 'OVAL',
+  'PARK', 'QUIT', 'RAIN', 'SNOW', 'TEXT', 'UNIT', 'VAST', 'WALL', 'YOGA', 'ZERO',
+  
+  // 五字母單字
+  'ABOUT', 'ABOVE', 'AFTER', 'AGAIN', 'ALONE', 'ALONG', 'BEING', 'BELOW', 'COULD', 'DOING',
+  'EVERY', 'FIRST', 'FOUND', 'GIVEN', 'GOING', 'GREAT', 'GROUP', 'HAPPY', 'HOUSE', 'LARGE',
+  'LIGHT', 'LIVED', 'MIGHT', 'MONEY', 'NEVER', 'NIGHT', 'OTHER', 'PEACE', 'PLACE', 'RIGHT',
+  'SHALL', 'SMALL', 'SOUND', 'STILL', 'STUDY', 'THEIR', 'THESE', 'THINK', 'THREE', 'UNDER',
+  'WATER', 'WHERE', 'WHICH', 'WHILE', 'WORLD', 'WOULD', 'WRITE', 'WRONG', 'YOUNG', 'ANGEL',
+  'APPLE', 'BEACH', 'BRAIN', 'BREAD', 'CHAIR', 'DANCE', 'DREAM', 'EARTH', 'FLOWER', 'GLASS',
+  'HEART', 'HONEY', 'HUMAN', 'LAUGH', 'MAGIC', 'OCEAN', 'PAPER', 'PIANO', 'PLANT', 'SMILE',
+  'SPACE', 'SWEET', 'TABLE', 'TIGER', 'VOICE', 'WHEAT', 'WOMAN', 'YOUTH',
   
   // 關鍵字（已包含在字典中）
   ...KEYWORDS
