@@ -293,7 +293,7 @@ export const WordSearchGame = ({
     };
   }, [isSelecting, updateSelection, endSelection]);
   const getCellClass = (row: number, col: number): string => {
-    const baseClass = "w-8 h-8 border border-border/30 flex items-center justify-center text-sm font-mono cursor-pointer select-none transition-all duration-200";
+    const baseClass = "w-6 h-6 sm:w-8 sm:h-8 border border-border/30 flex items-center justify-center text-xs sm:text-sm font-mono cursor-pointer select-none transition-all duration-200";
 
     // 檢查是否在當前選擇中
     if (currentSelection.some(pos => pos.row === row && pos.col === col)) {
@@ -397,17 +397,18 @@ export const WordSearchGame = ({
       toast.error('生成圖片時發生錯誤，請稍後再試');
     }
   };
-  return <div className="flex flex-col items-center gap-6 p-4">
-      <Card className="p-6 bg-card/80 backdrop-blur-sm game-container">
+  return <div className="flex flex-col items-center gap-4 sm:gap-6 p-2 sm:p-4 w-full">
+      <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm game-container w-full max-w-2xl">
         <div className="text-center mb-4">
-          <h2 className="text-2xl font-bold glow-text mb-2">✨2025 REWIND✨</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl sm:text-2xl font-bold glow-text mb-2">✨2025 REWIND✨</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
             已選擇 {selectedWords.length}/5 個單字
           </p>
         </div>
         
-        <div ref={gridRef} className="grid grid-cols-15 gap-0 w-fit mx-auto mb-6 bg-background/50 p-2 rounded-lg shadow-deep" style={{
-        gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`
+        <div ref={gridRef} className="grid gap-0 w-full max-w-sm sm:max-w-md mx-auto mb-6 bg-background/50 p-1 sm:p-2 rounded-lg shadow-deep touch-none" style={{
+        gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
+        aspectRatio: '1'
       }} onMouseDown={startSelection} onTouchStart={startSelection}>
           {grid.map((row, rowIndex) => row.map((letter, colIndex) => <div key={`${rowIndex}-${colIndex}`} className={getCellClass(rowIndex, colIndex)}>
                 {letter}
