@@ -3,83 +3,31 @@ import { GameButton } from '@/components/ui/game-button';
 import { Card } from '@/components/ui/card';
 import html2canvas from 'html2canvas';
 import { toast } from 'sonner';
-
 interface Position {
   row: number;
   col: number;
 }
-
 interface SelectedWord {
   word: string;
   positions: Position[];
   color: string;
 }
-
 const GRID_SIZE = 15;
-const HIGHLIGHT_COLORS = [
-  'highlight-yellow',
-  'highlight-green', 
-  'highlight-pink',
-  'neon-blue',
-  'mystical'
-];
+const HIGHLIGHT_COLORS = ['highlight-yellow', 'highlight-green', 'highlight-pink', 'neon-blue', 'mystical'];
 
 // 幸運關鍵字庫 + 常用英文單字
-const KEYWORDS = [
-  'PEACE', 'LOVE', 'MONEY', 'HEALTH', 'FREEDOM', 'PURPOSE', 'MIRACLES', 
-  'STRENGTH', 'FAMILY', 'SUCCESS', 'WISDOM', 'ENERGY', 'HOPE', 'JOY',
-  'TRUST', 'POWER', 'GROWTH', 'MAGIC', 'LIGHT', 'DREAMS', 'FUTURE',
-  'HAPPY', 'LUCKY', 'BRAVE', 'KIND', 'SMART', 'STRONG', 'MIND', 'SOUL',
-  'HEART', 'FAITH', 'GOALS', 'WINS', 'SHINE', 'GLOW', 'RISE', 'FLY'
-];
+const KEYWORDS = ['PEACE', 'LOVE', 'MONEY', 'HEALTH', 'FREEDOM', 'PURPOSE', 'MIRACLES', 'STRENGTH', 'FAMILY', 'SUCCESS', 'WISDOM', 'ENERGY', 'HOPE', 'JOY', 'TRUST', 'POWER', 'GROWTH', 'MAGIC', 'LIGHT', 'DREAMS', 'FUTURE', 'HAPPY', 'LUCKY', 'BRAVE', 'KIND', 'SMART', 'STRONG', 'MIND', 'SOUL', 'HEART', 'FAITH', 'GOALS', 'WINS', 'SHINE', 'GLOW', 'RISE', 'FLY'];
 
 // 英文單字字典（完整版本，包含更多常用詞）
 const COMMON_WORDS = new Set([
-  // 三字母單字
-  'THE', 'AND', 'FOR', 'ARE', 'BUT', 'NOT', 'YOU', 'ALL', 'CAN', 'HER', 'WAS', 'ONE', 'OUR',
-  'HAD', 'OUT', 'DAY', 'GET', 'HAS', 'HIM', 'HOW', 'ITS', 'MAY', 'NEW', 'NOW', 'OLD', 'SEE',
-  'TWO', 'WHO', 'BOY', 'DID', 'WAY', 'USE', 'MAN', 'SHE', 'SAY', 'HIS', 'GOD', 'SET', 'END',
-  'RUN', 'WIN', 'TOP', 'TRY', 'BIG', 'BAD', 'FUN', 'SUN', 'SKY', 'CAR', 'DOG', 'CAT', 'BOX',
-  'RED', 'YES', 'EAT', 'PUT', 'LET', 'ASK', 'AGO', 'ARM', 'EYE', 'EAR', 'LEG', 'CUP', 'KEY',
-  'MAP', 'PEN', 'BAG', 'HAT', 'BED', 'EGG', 'ICE', 'JOB', 'LAW', 'OIL', 'PIG', 'SEA', 'TAX',
-  'WAR', 'ZOO', 'ART', 'BUS', 'CUT', 'DRY', 'FAR', 'GUN', 'HIT', 'ILL', 'JOY', 'KID', 'LIE',
-  'MOM', 'NET', 'OWN', 'PAY', 'RAW', 'SIT', 'TOY', 'VAN', 'WET', 'MIX', 'FIX', 'SIX', 'FOX',
-  'AGE', 'AIR', 'ANY', 'BAG', 'BAR', 'BAT', 'BIT', 'BOW', 'BUY', 'COW', 'CRY', 'DIE', 'DIG',
-  'EAR', 'EYE', 'FEW', 'FLY', 'GAP', 'GAS', 'HAM', 'HOT', 'INK', 'JAM', 'LAY', 'LOG', 'LOW',
-  'MAD', 'MUD', 'NUT', 'OFF', 'POT', 'RAG', 'ROW', 'SAD', 'SAW', 'SEW', 'SHY', 'TAB', 'TEN',
-  'TOE', 'TON', 'TOP', 'TUG', 'WIG', 'WIN', 'ZIP', 'ADD', 'BIG', 'DIM', 'FIT', 'HOT', 'LID',
-  
-  // 四字母單字
-  'LOVE', 'LIFE', 'TIME', 'WORK', 'WORD', 'GOOD', 'YEAR', 'MAKE', 'KNOW', 'BACK', 'COME', 'TAKE',
-  'WANT', 'GIVE', 'HAND', 'PART', 'FIND', 'TELL', 'TURN', 'MOVE', 'PLAY', 'SEEM', 'LOOK', 'FEEL',
-  'CALL', 'HELP', 'KEEP', 'SHOW', 'MEAN', 'NEED', 'LAST', 'LONG', 'BEST', 'HOME', 'BOTH', 'SIDE',
-  'IDEA', 'HEAD', 'FACE', 'FACT', 'HAND', 'HIGH', 'EACH', 'MOST', 'SUCH', 'VERY', 'WHAT', 'WITH',
-  'HAVE', 'FROM', 'THEY', 'THIS', 'BEEN', 'HAVE', 'SAID', 'EACH', 'LIKE', 'ONLY', 'SOME', 'ALSO',
-  'BOOK', 'TREE', 'DOOR', 'ROOM', 'FOOD', 'GAME', 'HERO', 'KING', 'MOON', 'STAR', 'WIND', 'FIRE',
-  'FISH', 'BIRD', 'BEAR', 'LION', 'WOLF', 'DUCK', 'FROG', 'CAKE', 'MILK', 'RICE', 'SOUP', 'MEAT',
-  'BLUE', 'GOLD', 'PINK', 'GREY', 'DARK', 'WARM', 'COLD', 'FAST', 'SLOW', 'EASY', 'HARD', 'SOFT',
-  'TALL', 'WIDE', 'DEEP', 'NEAR', 'SAFE', 'RICH', 'POOR', 'FULL', 'GLAD', 'BUSY', 'FREE', 'OPEN',
-  'REAL', 'TRUE', 'SURE', 'NICE', 'KIND', 'COOL', 'CUTE', 'FINE', 'WILD', 'CALM', 'WISE', 'FAIR',
-  'MINE', 'CARE', 'HOPE', 'HURT', 'JOKE', 'KISS', 'LAKE', 'LEAN', 'MALL', 'NAME', 'OKAY', 'PACE',
-  'QUIZ', 'RACE', 'SALE', 'TALK', 'UGLY', 'VARY', 'WAKE', 'ZERO', 'ABLE', 'BEAR', 'CODE', 'DEAL',
-  'EDGE', 'FLAT', 'GAIN', 'HATE', 'ITEM', 'JOIN', 'KICK', 'LUCK', 'MASK', 'NOTE', 'OVAL', 'PULL',
-  'QUIT', 'ROCK', 'SAVE', 'TAPE', 'USED', 'VIEW', 'WALK', 'YARD', 'ZONE', 'ARMY', 'BOAT', 'COIN',
-  'DRAW', 'EVEN', 'FLAG', 'GOLF', 'HALT', 'IRON', 'JOKE', 'KNEE', 'LAWN', 'MAIL', 'NAVY', 'OVAL',
-  'PARK', 'QUIT', 'RAIN', 'SNOW', 'TEXT', 'UNIT', 'VAST', 'WALL', 'YOGA', 'ZERO',
-  
-  // 五字母單字
-  'ABOUT', 'ABOVE', 'AFTER', 'AGAIN', 'ALONE', 'ALONG', 'BEING', 'BELOW', 'COULD', 'DOING',
-  'EVERY', 'FIRST', 'FOUND', 'GIVEN', 'GOING', 'GREAT', 'GROUP', 'HAPPY', 'HOUSE', 'LARGE',
-  'LIGHT', 'LIVED', 'MIGHT', 'MONEY', 'NEVER', 'NIGHT', 'OTHER', 'PEACE', 'PLACE', 'RIGHT',
-  'SHALL', 'SMALL', 'SOUND', 'STILL', 'STUDY', 'THEIR', 'THESE', 'THINK', 'THREE', 'UNDER',
-  'WATER', 'WHERE', 'WHICH', 'WHILE', 'WORLD', 'WOULD', 'WRITE', 'WRONG', 'YOUNG', 'ANGEL',
-  'APPLE', 'BEACH', 'BRAIN', 'BREAD', 'CHAIR', 'DANCE', 'DREAM', 'EARTH', 'FLOWER', 'GLASS',
-  'HEART', 'HONEY', 'HUMAN', 'LAUGH', 'MAGIC', 'OCEAN', 'PAPER', 'PIANO', 'PLANT', 'SMILE',
-  'SPACE', 'SWEET', 'TABLE', 'TIGER', 'VOICE', 'WHEAT', 'WOMAN', 'YOUTH',
-  
-  // 關鍵字（已包含在字典中）
-  ...KEYWORDS
-]);
+// 三字母單字
+'THE', 'AND', 'FOR', 'ARE', 'BUT', 'NOT', 'YOU', 'ALL', 'CAN', 'HER', 'WAS', 'ONE', 'OUR', 'HAD', 'OUT', 'DAY', 'GET', 'HAS', 'HIM', 'HOW', 'ITS', 'MAY', 'NEW', 'NOW', 'OLD', 'SEE', 'TWO', 'WHO', 'BOY', 'DID', 'WAY', 'USE', 'MAN', 'SHE', 'SAY', 'HIS', 'GOD', 'SET', 'END', 'RUN', 'WIN', 'TOP', 'TRY', 'BIG', 'BAD', 'FUN', 'SUN', 'SKY', 'CAR', 'DOG', 'CAT', 'BOX', 'RED', 'YES', 'EAT', 'PUT', 'LET', 'ASK', 'AGO', 'ARM', 'EYE', 'EAR', 'LEG', 'CUP', 'KEY', 'MAP', 'PEN', 'BAG', 'HAT', 'BED', 'EGG', 'ICE', 'JOB', 'LAW', 'OIL', 'PIG', 'SEA', 'TAX', 'WAR', 'ZOO', 'ART', 'BUS', 'CUT', 'DRY', 'FAR', 'GUN', 'HIT', 'ILL', 'JOY', 'KID', 'LIE', 'MOM', 'NET', 'OWN', 'PAY', 'RAW', 'SIT', 'TOY', 'VAN', 'WET', 'MIX', 'FIX', 'SIX', 'FOX', 'AGE', 'AIR', 'ANY', 'BAG', 'BAR', 'BAT', 'BIT', 'BOW', 'BUY', 'COW', 'CRY', 'DIE', 'DIG', 'EAR', 'EYE', 'FEW', 'FLY', 'GAP', 'GAS', 'HAM', 'HOT', 'INK', 'JAM', 'LAY', 'LOG', 'LOW', 'MAD', 'MUD', 'NUT', 'OFF', 'POT', 'RAG', 'ROW', 'SAD', 'SAW', 'SEW', 'SHY', 'TAB', 'TEN', 'TOE', 'TON', 'TOP', 'TUG', 'WIG', 'WIN', 'ZIP', 'ADD', 'BIG', 'DIM', 'FIT', 'HOT', 'LID',
+// 四字母單字
+'LOVE', 'LIFE', 'TIME', 'WORK', 'WORD', 'GOOD', 'YEAR', 'MAKE', 'KNOW', 'BACK', 'COME', 'TAKE', 'WANT', 'GIVE', 'HAND', 'PART', 'FIND', 'TELL', 'TURN', 'MOVE', 'PLAY', 'SEEM', 'LOOK', 'FEEL', 'CALL', 'HELP', 'KEEP', 'SHOW', 'MEAN', 'NEED', 'LAST', 'LONG', 'BEST', 'HOME', 'BOTH', 'SIDE', 'IDEA', 'HEAD', 'FACE', 'FACT', 'HAND', 'HIGH', 'EACH', 'MOST', 'SUCH', 'VERY', 'WHAT', 'WITH', 'HAVE', 'FROM', 'THEY', 'THIS', 'BEEN', 'HAVE', 'SAID', 'EACH', 'LIKE', 'ONLY', 'SOME', 'ALSO', 'BOOK', 'TREE', 'DOOR', 'ROOM', 'FOOD', 'GAME', 'HERO', 'KING', 'MOON', 'STAR', 'WIND', 'FIRE', 'FISH', 'BIRD', 'BEAR', 'LION', 'WOLF', 'DUCK', 'FROG', 'CAKE', 'MILK', 'RICE', 'SOUP', 'MEAT', 'BLUE', 'GOLD', 'PINK', 'GREY', 'DARK', 'WARM', 'COLD', 'FAST', 'SLOW', 'EASY', 'HARD', 'SOFT', 'TALL', 'WIDE', 'DEEP', 'NEAR', 'SAFE', 'RICH', 'POOR', 'FULL', 'GLAD', 'BUSY', 'FREE', 'OPEN', 'REAL', 'TRUE', 'SURE', 'NICE', 'KIND', 'COOL', 'CUTE', 'FINE', 'WILD', 'CALM', 'WISE', 'FAIR', 'MINE', 'CARE', 'HOPE', 'HURT', 'JOKE', 'KISS', 'LAKE', 'LEAN', 'MALL', 'NAME', 'OKAY', 'PACE', 'QUIZ', 'RACE', 'SALE', 'TALK', 'UGLY', 'VARY', 'WAKE', 'ZERO', 'ABLE', 'BEAR', 'CODE', 'DEAL', 'EDGE', 'FLAT', 'GAIN', 'HATE', 'ITEM', 'JOIN', 'KICK', 'LUCK', 'MASK', 'NOTE', 'OVAL', 'PULL', 'QUIT', 'ROCK', 'SAVE', 'TAPE', 'USED', 'VIEW', 'WALK', 'YARD', 'ZONE', 'ARMY', 'BOAT', 'COIN', 'DRAW', 'EVEN', 'FLAG', 'GOLF', 'HALT', 'IRON', 'JOKE', 'KNEE', 'LAWN', 'MAIL', 'NAVY', 'OVAL', 'PARK', 'QUIT', 'RAIN', 'SNOW', 'TEXT', 'UNIT', 'VAST', 'WALL', 'YOGA', 'ZERO',
+// 五字母單字
+'ABOUT', 'ABOVE', 'AFTER', 'AGAIN', 'ALONE', 'ALONG', 'BEING', 'BELOW', 'COULD', 'DOING', 'EVERY', 'FIRST', 'FOUND', 'GIVEN', 'GOING', 'GREAT', 'GROUP', 'HAPPY', 'HOUSE', 'LARGE', 'LIGHT', 'LIVED', 'MIGHT', 'MONEY', 'NEVER', 'NIGHT', 'OTHER', 'PEACE', 'PLACE', 'RIGHT', 'SHALL', 'SMALL', 'SOUND', 'STILL', 'STUDY', 'THEIR', 'THESE', 'THINK', 'THREE', 'UNDER', 'WATER', 'WHERE', 'WHICH', 'WHILE', 'WORLD', 'WOULD', 'WRITE', 'WRONG', 'YOUNG', 'ANGEL', 'APPLE', 'BEACH', 'BRAIN', 'BREAD', 'CHAIR', 'DANCE', 'DREAM', 'EARTH', 'FLOWER', 'GLASS', 'HEART', 'HONEY', 'HUMAN', 'LAUGH', 'MAGIC', 'OCEAN', 'PAPER', 'PIANO', 'PLANT', 'SMILE', 'SPACE', 'SWEET', 'TABLE', 'TIGER', 'VOICE', 'WHEAT', 'WOMAN', 'YOUTH',
+// 關鍵字（已包含在字典中）
+...KEYWORDS]);
 
 // 幸運解讀字典
 const FORTUNE_MEANINGS = {
@@ -121,36 +69,39 @@ const FORTUNE_MEANINGS = {
   'RISE': '你會在困境中崛起。',
   'FLY': '自由翱翔是你的天性。'
 };
-
 const generateGrid = (): string[][] => {
   const grid: string[][] = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
-  
+
   // 隨機放置關鍵字和常用單字
   const placedWords = new Set<string>();
   const availableWords = [...KEYWORDS, ...Array.from(COMMON_WORDS).filter(w => w.length >= 3 && w.length <= 8)];
   const targetWordCount = Math.min(200, availableWords.length); // 增加到200個單字
-  
+
   let attempts = 0;
   while (placedWords.size < targetWordCount && attempts < 5000) {
     attempts++;
     const word = availableWords[Math.floor(Math.random() * availableWords.length)];
     if (placedWords.has(word)) continue;
-    
-    const directions = [
-      [0, 1],   // 水平
-      [1, 0],   // 垂直
-      [1, 1],   // 對角線
-      [-1, 1],  // 反對角線
-      [0, -1],  // 反水平
-      [-1, 0],  // 反垂直
-      [-1, -1], // 反對角線
-      [1, -1],  // 反對角線
+    const directions = [[0, 1],
+    // 水平
+    [1, 0],
+    // 垂直
+    [1, 1],
+    // 對角線
+    [-1, 1],
+    // 反對角線
+    [0, -1],
+    // 反水平
+    [-1, 0],
+    // 反垂直
+    [-1, -1],
+    // 反對角線
+    [1, -1] // 反對角線
     ];
-    
     const direction = directions[Math.floor(Math.random() * directions.length)];
     const startRow = Math.floor(Math.random() * GRID_SIZE);
     const startCol = Math.floor(Math.random() * GRID_SIZE);
-    
+
     // 檢查是否能放置
     let canPlace = true;
     const positions: Position[] = [];
@@ -161,9 +112,12 @@ const generateGrid = (): string[][] => {
         canPlace = false;
         break;
       }
-      positions.push({ row, col });
+      positions.push({
+        row,
+        col
+      });
     }
-    
+
     // 檢查是否與已放置的字母衝突
     if (canPlace) {
       for (const pos of positions) {
@@ -173,7 +127,6 @@ const generateGrid = (): string[][] => {
         }
       }
     }
-    
     if (canPlace) {
       for (let i = 0; i < word.length; i++) {
         const row = startRow + direction[0] * i;
@@ -183,7 +136,7 @@ const generateGrid = (): string[][] => {
       placedWords.add(word);
     }
   }
-  
+
   // 填充剩餘空格
   for (let i = 0; i < GRID_SIZE; i++) {
     for (let j = 0; j < GRID_SIZE; j++) {
@@ -192,15 +145,14 @@ const generateGrid = (): string[][] => {
       }
     }
   }
-  
   return grid;
 };
-
 interface WordSearchGameProps {
   onGameComplete?: (words: string[]) => void;
 }
-
-export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
+export const WordSearchGame = ({
+  onGameComplete
+}: WordSearchGameProps) => {
   const [grid, setGrid] = useState<string[][]>(() => generateGrid());
   const [selectedWords, setSelectedWords] = useState<SelectedWord[]>([]);
   const [currentSelection, setCurrentSelection] = useState<Position[]>([]);
@@ -208,66 +160,60 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
   const [gameCompleted, setGameCompleted] = useState(false);
   const [fortuneMessage, setFortuneMessage] = useState<string>('');
   const gridRef = useRef<HTMLDivElement>(null);
-
   const getPositionFromEvent = useCallback((e: any): Position | null => {
     if (!gridRef.current) return null;
-    
     const rect = gridRef.current.getBoundingClientRect();
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    
     const x = clientX - rect.left;
     const y = clientY - rect.top;
-    
     const cellSize = rect.width / GRID_SIZE;
     const col = Math.floor(x / cellSize);
     const row = Math.floor(y / cellSize);
-    
     if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
-      return { row, col };
+      return {
+        row,
+        col
+      };
     }
     return null;
   }, []);
-
   const startSelection = useCallback((e: any) => {
     if (selectedWords.length >= 5) return;
-    
     const pos = getPositionFromEvent(e);
     if (pos) {
       setIsSelecting(true);
       setCurrentSelection([pos]);
     }
   }, [getPositionFromEvent, selectedWords.length]);
-
   const updateSelection = useCallback((e: any) => {
     if (!isSelecting) return;
-    
     const pos = getPositionFromEvent(e);
     if (pos && currentSelection.length > 0) {
       const start = currentSelection[0];
       const positions: Position[] = [];
-      
+
       // 只允許直線選擇（水平、垂直、對角線）
       const deltaRow = pos.row - start.row;
       const deltaCol = pos.col - start.col;
-      
+
       // 檢查是否為有效的直線方向
       const isHorizontal = deltaRow === 0;
       const isVertical = deltaCol === 0;
       const isDiagonal = Math.abs(deltaRow) === Math.abs(deltaCol);
-      
       if (isHorizontal || isVertical || isDiagonal) {
         const steps = Math.max(Math.abs(deltaRow), Math.abs(deltaCol));
-        
         if (steps > 0) {
           const stepRow = deltaRow / steps;
           const stepCol = deltaCol / steps;
-          
           for (let i = 0; i <= steps; i++) {
             const row = Math.round(start.row + stepRow * i);
             const col = Math.round(start.col + stepCol * i);
             if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
-              positions.push({ row, col });
+              positions.push({
+                row,
+                col
+              });
             }
           }
         } else {
@@ -277,15 +223,13 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
         // 如果不是直線，只保留起點
         positions.push(start);
       }
-      
       setCurrentSelection(positions);
     }
   }, [isSelecting, currentSelection, getPositionFromEvent]);
-
   const endSelection = useCallback(() => {
     if (currentSelection.length > 1) {
       const word = currentSelection.map(pos => grid[pos.row][pos.col]).join('');
-      
+
       // 檢查是否為有效的英文單字，且長度至少3個字母
       if (word.length >= 3 && COMMON_WORDS.has(word) && !selectedWords.some(w => w.word === word)) {
         const colorIndex = selectedWords.length % HIGHLIGHT_COLORS.length;
@@ -300,11 +244,9 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
         toast.error(`"${word}" 不是有效的英文單字`);
       }
     }
-    
     setIsSelecting(false);
     setCurrentSelection([]);
   }, [currentSelection, grid, selectedWords]);
-
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => updateSelection(e);
     const handleMouseUp = () => endSelection();
@@ -316,14 +258,16 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
       e.preventDefault();
       endSelection();
     };
-
     if (isSelecting) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
-      document.addEventListener('touchmove', handleTouchMove, { passive: false });
-      document.addEventListener('touchend', handleTouchEnd, { passive: false });
+      document.addEventListener('touchmove', handleTouchMove, {
+        passive: false
+      });
+      document.addEventListener('touchend', handleTouchEnd, {
+        passive: false
+      });
     }
-
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
@@ -331,29 +275,25 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
       document.removeEventListener('touchend', handleTouchEnd);
     };
   }, [isSelecting, updateSelection, endSelection]);
-
   const getCellClass = (row: number, col: number): string => {
     const baseClass = "w-8 h-8 border border-border/30 flex items-center justify-center text-sm font-mono cursor-pointer select-none transition-all duration-200";
-    
+
     // 檢查是否在當前選擇中
     if (currentSelection.some(pos => pos.row === row && pos.col === col)) {
       return `${baseClass} bg-mystical/60 text-foreground animate-pulse`;
     }
-    
+
     // 檢查是否在已選中的單字中
     for (const word of selectedWords) {
       if (word.positions.some(pos => pos.row === row && pos.col === col)) {
         return `${baseClass} ${word.color} text-background font-bold`;
       }
     }
-    
     return `${baseClass} bg-grid-dark hover:bg-mystical/20 text-foreground/80`;
   };
-
   const generateFortune = (): string => {
     return "🔮 2025 的宇宙提示：\n這些字會在今年為你開啟新的可能。";
   };
-
   const handleShuffle = () => {
     setGrid(generateGrid());
     setSelectedWords([]);
@@ -361,14 +301,12 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
     setGameCompleted(false);
     setFortuneMessage('');
   };
-
   const handleReset = () => {
     setSelectedWords([]);
     setCurrentSelection([]);
     setGameCompleted(false);
     setFortuneMessage('');
   };
-
   const handleFinish = () => {
     if (selectedWords.length > 0) {
       const words = selectedWords.map(w => w.word);
@@ -379,42 +317,42 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
       toast.success('🎉 恭喜完成！你的幸運訊息已生成！');
     }
   };
-
   const handleShareImage = async () => {
     try {
       toast.loading('正在生成分享圖片...');
-      
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       // 只截取遊戲區域
       const gameElement = document.querySelector('.game-container') as HTMLElement;
       if (!gameElement) {
         toast.error('無法找到遊戲區域');
         return;
       }
-      
       const canvas = await html2canvas(gameElement, {
         backgroundColor: '#1a1625',
         scale: 2,
         useCORS: true,
         allowTaint: true,
         width: gameElement.offsetWidth,
-        height: gameElement.offsetHeight,
+        height: gameElement.offsetHeight
       });
-      
+
       // 轉換為 blob
-      canvas.toBlob(async (blob) => {
+      canvas.toBlob(async blob => {
         if (!blob) {
           toast.error('圖片生成失敗');
           return;
         }
-        
+
         // 檢查是否支援 Web Share API
         if (navigator.share && navigator.canShare) {
           try {
-            const file = new File([blob], `my-2025-mantra-${Date.now()}.png`, { type: 'image/png' });
-            
-            if (navigator.canShare({ files: [file] })) {
+            const file = new File([blob], `my-2025-mantra-${Date.now()}.png`, {
+              type: 'image/png'
+            });
+            if (navigator.canShare({
+              files: [file]
+            })) {
               await navigator.share({
                 title: '我的 2025 年宇宙提示',
                 text: '來看看我在 Word Search Mantra 遊戲中找到的幸運單字！',
@@ -427,7 +365,7 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
             console.log('Web Share 失敗，使用下載方式');
           }
         }
-        
+
         // 降級到下載功能
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -435,82 +373,50 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
         link.href = url;
         link.click();
         URL.revokeObjectURL(url);
-        
         toast.success('📸 分享圖片已下載！');
       }, 'image/png');
-      
     } catch (error) {
       console.error('生成圖片失敗:', error);
       toast.error('生成圖片時發生錯誤，請稍後再試');
     }
   };
-
-  return (
-    <div className="flex flex-col items-center gap-6 p-4">
+  return <div className="flex flex-col items-center gap-6 p-4">
       <Card className="p-6 bg-card/80 backdrop-blur-sm game-container">
         <div className="text-center mb-4">
-          <h2 className="text-2xl font-bold glow-text mb-2">
-            Find Your 2025 Mantra
-          </h2>
+          <h2 className="text-2xl font-bold glow-text mb-2">📖 2025 回顧小語：</h2>
           <p className="text-muted-foreground">
             已選擇 {selectedWords.length}/5 個單字
           </p>
         </div>
         
-        <div 
-          ref={gridRef}
-          className="grid grid-cols-15 gap-0 w-fit mx-auto mb-6 bg-background/50 p-2 rounded-lg shadow-deep"
-          style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))` }}
-          onMouseDown={startSelection}
-          onTouchStart={startSelection}
-        >
-          {grid.map((row, rowIndex) =>
-            row.map((letter, colIndex) => (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                className={getCellClass(rowIndex, colIndex)}
-              >
+        <div ref={gridRef} className="grid grid-cols-15 gap-0 w-fit mx-auto mb-6 bg-background/50 p-2 rounded-lg shadow-deep" style={{
+        gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`
+      }} onMouseDown={startSelection} onTouchStart={startSelection}>
+          {grid.map((row, rowIndex) => row.map((letter, colIndex) => <div key={`${rowIndex}-${colIndex}`} className={getCellClass(rowIndex, colIndex)}>
                 {letter}
-              </div>
-            ))
-          )}
+              </div>))}
         </div>
 
-        {selectedWords.length > 0 && (
-          <div className="mb-4">
+        {selectedWords.length > 0 && <div className="mb-4">
             <h3 className="text-lg font-semibold mb-2 text-center">選中的單字:</h3>
             <div className="flex flex-wrap gap-2 justify-center">
-              {selectedWords.map((word, index) => (
-                <span 
-                  key={index}
-                  className={`px-3 py-1 rounded-full text-background font-bold ${word.color}`}
-                >
+              {selectedWords.map((word, index) => <span key={index} className={`px-3 py-1 rounded-full text-background font-bold ${word.color}`}>
                   {word.word}
-                </span>
-              ))}
+                </span>)}
             </div>
-          </div>
-        )}
+          </div>}
 
-        {!gameCompleted ? (
-          <div className="flex gap-3 justify-center flex-wrap">
+        {!gameCompleted ? <div className="flex gap-3 justify-center flex-wrap">
             <GameButton variant="ghost-neon" onClick={handleShuffle}>
               🔄 重新洗牌
             </GameButton>
             <GameButton variant="danger" onClick={handleReset}>
               🧹 重置
             </GameButton>
-            <GameButton 
-              variant="neon" 
-              onClick={handleFinish}
-              disabled={selectedWords.length === 0}
-              glowing={selectedWords.length > 0}
-            >
+            <GameButton variant="neon" onClick={handleFinish} disabled={selectedWords.length === 0} glowing={selectedWords.length > 0}>
               ✨ 完成 ({selectedWords.length})
             </GameButton>
-          </div>
-        ) : (
-          <div className="space-y-4">
+          </div> : <div className="space-y-4">
             {/* 結果訊息區塊 */}
             <div className="text-center mt-6">
               <div className="p-4 bg-mystical/10 rounded-lg border border-mystical/20 max-w-md mx-auto">
@@ -529,9 +435,7 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
                 📤 分享我的結果 ✨
               </GameButton>
             </div>
-          </div>
-        )}
+          </div>}
       </Card>
-    </div>
-  );
+    </div>;
 };
