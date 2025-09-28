@@ -350,9 +350,8 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
     return `${baseClass} bg-grid-dark hover:bg-mystical/20 text-foreground/80`;
   };
 
-  const generateFortune = (words: string[]): string => {
-    const meanings = words.map(word => FORTUNE_MEANINGS[word] || '這個單字將為你帶來特別的能量。').join(' ');
-    return `🔮 你的 2025 年幸運訊息：\n\n${meanings}\n\n✨ 記住這些單字，它們是你今年的幸運密碼！`;
+  const generateFortune = (): string => {
+    return "🔮 2025 的宇宙提示：\n這些字會在今年為你開啟新的可能。";
   };
 
   const handleShuffle = () => {
@@ -373,7 +372,7 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
   const handleFinish = () => {
     if (selectedWords.length > 0) {
       const words = selectedWords.map(w => w.word);
-      const fortune = generateFortune(words);
+      const fortune = generateFortune();
       setFortuneMessage(fortune);
       setGameCompleted(true);
       onGameComplete?.(words);
@@ -382,13 +381,73 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
   };
 
   const handleShareImage = async () => {
-    // 移除分享圖片功能
-    toast.info('分享功能已移除');
+    try {
+      toast.loading('正在生成分享圖片...');
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // 只截取遊戲區域
+      const gameElement = document.querySelector('.game-container') as HTMLElement;
+      if (!gameElement) {
+        toast.error('無法找到遊戲區域');
+        return;
+      }
+      
+      const canvas = await html2canvas(gameElement, {
+        backgroundColor: '#1a1625',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        width: gameElement.offsetWidth,
+        height: gameElement.offsetHeight,
+      });
+      
+      // 轉換為 blob
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          toast.error('圖片生成失敗');
+          return;
+        }
+        
+        // 檢查是否支援 Web Share API
+        if (navigator.share && navigator.canShare) {
+          try {
+            const file = new File([blob], `my-2025-mantra-${Date.now()}.png`, { type: 'image/png' });
+            
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                title: '我的 2025 年宇宙提示',
+                text: '來看看我在 Word Search Mantra 遊戲中找到的幸運單字！',
+                files: [file]
+              });
+              toast.success('分享成功！');
+              return;
+            }
+          } catch (shareError) {
+            console.log('Web Share 失敗，使用下載方式');
+          }
+        }
+        
+        // 降級到下載功能
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `my-2025-mantra-${Date.now()}.png`;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        toast.success('📸 分享圖片已下載！');
+      }, 'image/png');
+      
+    } catch (error) {
+      console.error('生成圖片失敗:', error);
+      toast.error('生成圖片時發生錯誤，請稍後再試');
+    }
   };
 
   return (
     <div className="flex flex-col items-center gap-6 p-4">
-      <Card className="p-6 bg-card/80 backdrop-blur-sm">
+      <Card className="p-6 bg-card/80 backdrop-blur-sm game-container">
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold glow-text mb-2">
             Find Your 2025 Mantra
@@ -451,18 +510,23 @@ export const WordSearchGame = ({ onGameComplete }: WordSearchGameProps) => {
             </GameButton>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="text-center">
-              <div className="p-6 bg-mystical/20 rounded-lg border border-mystical/30">
-                <div className="whitespace-pre-line text-foreground/90 leading-relaxed">
+          <div className="space-y-4">
+            {/* 結果訊息區塊 */}
+            <div className="text-center mt-6">
+              <div className="p-4 bg-mystical/10 rounded-lg border border-mystical/20 max-w-md mx-auto">
+                <div className="whitespace-pre-line text-foreground/90 leading-relaxed text-sm">
                   {fortuneMessage}
                 </div>
               </div>
             </div>
             
-            <div className="flex gap-3 justify-center flex-wrap">
+            {/* 按鈕區塊 */}
+            <div className="flex gap-3 justify-center flex-wrap mt-6">
               <GameButton variant="neon" onClick={handleShuffle}>
                 🎮 再玩一次
+              </GameButton>
+              <GameButton variant="ghost-neon" onClick={handleShareImage}>
+                📤 分享我的結果 ✨
               </GameButton>
             </div>
           </div>
