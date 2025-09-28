@@ -15,8 +15,25 @@ interface SelectedWord {
 const GRID_SIZE = 15;
 const HIGHLIGHT_COLORS = ['highlight-yellow', 'highlight-green', 'highlight-pink', 'neon-blue', 'mystical'];
 
-// 幸運關鍵字庫 + 常用英文單字
-const KEYWORDS = ['PEACE', 'LOVE', 'MONEY', 'HEALTH', 'FREEDOM', 'PURPOSE', 'MIRACLES', 'STRENGTH', 'FAMILY', 'SUCCESS', 'WISDOM', 'ENERGY', 'HOPE', 'JOY', 'TRUST', 'POWER', 'GROWTH', 'MAGIC', 'LIGHT', 'DREAMS', 'FUTURE', 'HAPPY', 'LUCKY', 'BRAVE', 'KIND', 'SMART', 'STRONG', 'MIND', 'SOUL', 'HEART', 'FAITH', 'GOALS', 'WINS', 'SHINE', 'GLOW', 'RISE', 'FLY'];
+// 幸運關鍵字庫 + 常用英文單字（增加更多簡單正面的詞彙）
+const KEYWORDS = [
+  // 核心正面詞彙
+  'LOVE', 'HOPE', 'HAPPY', 'JOY', 'PEACE', 'SMILE', 'LIGHT', 'MAGIC', 'DREAMS', 'LUCKY',
+  'KIND', 'NICE', 'GOOD', 'BEST', 'WIN', 'WINS', 'YES', 'FUN', 'PLAY', 'DANCE',
+  'SING', 'LAUGH', 'WARM', 'SOFT', 'SWEET', 'CUTE', 'COOL', 'CALM', 'SAFE', 'FREE',
+  
+  // 生活美好詞彙
+  'FAMILY', 'FRIEND', 'HOME', 'HEART', 'SOUL', 'MIND', 'LIFE', 'TIME', 'DAY', 'SUN',
+  'MOON', 'STAR', 'SKY', 'BLUE', 'PINK', 'GOLD', 'GIFT', 'CAKE', 'FOOD', 'MILK',
+  
+  // 能量詞彙
+  'ENERGY', 'POWER', 'STRONG', 'BRAVE', 'WISE', 'SMART', 'BRIGHT', 'SHINE', 'GLOW', 'RISE',
+  'FLY', 'GROW', 'LEARN', 'HELP', 'CARE', 'GIVE', 'SHARE', 'OPEN', 'NEW', 'FRESH',
+  
+  // 成就詞彙
+  'SUCCESS', 'MONEY', 'HEALTH', 'GOALS', 'FAITH', 'TRUST', 'GROWTH', 'STRENGTH', 'WISDOM',
+  'FREEDOM', 'PURPOSE', 'MIRACLES', 'FUTURE'
+];
 
 // 英文單字字典（完整版本，包含更多常用詞）
 const COMMON_WORDS = new Set([
@@ -75,7 +92,7 @@ const generateGrid = (): string[][] => {
   // 隨機放置關鍵字和常用單字
   const placedWords = new Set<string>();
   const availableWords = [...KEYWORDS, ...Array.from(COMMON_WORDS).filter(w => w.length >= 3 && w.length <= 8)];
-  const targetWordCount = Math.min(200, availableWords.length); // 增加到200個單字
+  const targetWordCount = Math.min(300, availableWords.length); // 增加到300個單字，讓遊戲更豐富
 
   let attempts = 0;
   while (placedWords.size < targetWordCount && attempts < 5000) {
