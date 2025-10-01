@@ -173,6 +173,7 @@ export const WordSearchGame = ({
   const getPositionFromEvent = useCallback((e: any): Position | null => {
     const gridEl = gridRef.current;
     if (!gridEl) return null;
+
     const rect = gridEl.getBoundingClientRect();
 
     // 取得指標座標（支援觸控與滑鼠）
@@ -189,34 +190,27 @@ export const WordSearchGame = ({
       clientY = e.clientY;
     }
 
-    // 縮放比例修正（處理 CSS transform/縮放）
-    const scaleX = gridEl.offsetWidth > 0 ? gridEl.offsetWidth / rect.width : 1;
-    const scaleY = gridEl.offsetHeight > 0 ? gridEl.offsetHeight / rect.height : 1;
+    // 以實際渲染尺寸計算（避免 transform/縮放誤差）
+    let x = clientX - rect.left;
+    let y = clientY - rect.top;
 
-    // 轉換為版面像素（與 offsetWidth/offsetHeight 同座標系）
-    let x = (clientX - rect.left) * scaleX;
-    let y = (clientY - rect.top) * scaleY;
-
-    // 扣除實際 padding（避免估算誤差）
+    // 扣除 padding，使用當前計算樣式
     const styles = window.getComputedStyle(gridEl);
     const paddingLeft = parseFloat(styles.paddingLeft) || 0;
     const paddingRight = parseFloat(styles.paddingRight) || 0;
     const paddingTop = parseFloat(styles.paddingTop) || 0;
     const paddingBottom = parseFloat(styles.paddingBottom) || 0;
 
-    // 加入捲動位移，並改用內容寬高（處理 overflow 導致的座標錯位）
-    const scrollLeft = gridEl.scrollLeft || 0;
-    const scrollTop = gridEl.scrollTop || 0;
-    const contentWidth = (gridEl.scrollWidth || gridEl.offsetWidth) - paddingLeft - paddingRight;
-    const contentHeight = (gridEl.scrollHeight || gridEl.offsetHeight) - paddingTop - paddingBottom;
+    const effectiveWidth = rect.width - paddingLeft - paddingRight;
+    const effectiveHeight = rect.height - paddingTop - paddingBottom;
 
-    x = x + scrollLeft - paddingLeft;
-    y = y + scrollTop - paddingTop;
+    x = x - paddingLeft;
+    y = y - paddingTop;
 
-    if (x < 0 || y < 0 || x > contentWidth || y > contentHeight) return null;
+    if (x < 0 || y < 0 || x > effectiveWidth || y > effectiveHeight) return null;
 
-    const cellW = contentWidth / GRID_SIZE;
-    const cellH = contentHeight / GRID_SIZE;
+    const cellW = effectiveWidth / GRID_SIZE;
+    const cellH = effectiveHeight / GRID_SIZE;
 
     const col = Math.floor(x / cellW);
     const row = Math.floor(y / cellH);
@@ -326,7 +320,7 @@ export const WordSearchGame = ({
   const getCellClass = (row: number, col: number): string => {
     const baseClass = "w-full aspect-square border border-border/30 flex items-center justify-center font-mono cursor-pointer select-none transition-all duration-200";
     // 使用 vw 單位讓字體自適應螢幕寬度
-    const fontSizeClass = "text-[3vw] sm:text-base md:text-lg";
+    const fontSizeClass = "text-[clamp(14px,5vw,24px)] md:text-lg";
 
     // 檢查是否在當前選擇中
     if (currentSelection.some(pos => pos.row === row && pos.col === col)) {
@@ -443,11 +437,10 @@ export const WordSearchGame = ({
       <div className="w-full flex-1 flex flex-col items-center justify-start sm:justify-center game-container">
         <div 
           ref={gridRef} 
-          className="grid gap-0 w-full sm:w-[90vw] sm:max-w-2xl bg-background/50 p-1 sm:p-3 rounded-none sm:rounded-lg shadow-deep touch-none overflow-hidden mx-auto" 
+          className="grid gap-0 w-[100vw] md:w-full md:max-w-[600px] bg-background/50 p-0 md:p-3 rounded-none md:rounded-lg shadow-deep touch-none overflow-hidden mx-auto" 
           style={{
             gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
-            aspectRatio: '1',
-            maxWidth: '100vw'
+            aspectRatio: '1'
           }} 
           onMouseDown={startSelection} 
           onTouchStart={startSelection}
