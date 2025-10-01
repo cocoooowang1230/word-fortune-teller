@@ -190,30 +190,17 @@ export const WordSearchGame = ({
       clientY = e.clientY;
     }
 
-    // 以實際渲染尺寸計算（避免 transform/縮放誤差）
-    let x = clientX - rect.left;
-    let y = clientY - rect.top;
+    // 計算相對於 grid 的座標
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
 
-    // 扣除 padding，使用當前計算樣式
-    const styles = window.getComputedStyle(gridEl);
-    const paddingLeft = parseFloat(styles.paddingLeft) || 0;
-    const paddingRight = parseFloat(styles.paddingRight) || 0;
-    const paddingTop = parseFloat(styles.paddingTop) || 0;
-    const paddingBottom = parseFloat(styles.paddingBottom) || 0;
+    // 邊界檢查
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return null;
 
-    const effectiveWidth = rect.width - paddingLeft - paddingRight;
-    const effectiveHeight = rect.height - paddingTop - paddingBottom;
-
-    x = x - paddingLeft;
-    y = y - paddingTop;
-
-    if (x < 0 || y < 0 || x > effectiveWidth || y > effectiveHeight) return null;
-
-    const cellW = effectiveWidth / GRID_SIZE;
-    const cellH = effectiveHeight / GRID_SIZE;
-
-    const col = Math.floor(x / cellW);
-    const row = Math.floor(y / cellH);
+    // 計算格子大小和位置
+    const cellSize = rect.width / GRID_SIZE;
+    const col = Math.floor(x / cellSize);
+    const row = Math.floor(y / cellSize);
 
     if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
       return { row, col };
@@ -437,7 +424,7 @@ export const WordSearchGame = ({
       <div className="w-full flex-1 flex flex-col items-center justify-start sm:justify-center game-container">
         <div 
           ref={gridRef} 
-          className="grid gap-0 w-[100vw] md:w-full md:max-w-[600px] bg-background/50 p-0 md:p-3 rounded-none md:rounded-lg shadow-deep overflow-hidden mx-auto" 
+          className="word-grid grid gap-0 w-[100vw] md:w-full md:max-w-[600px] bg-background/50 p-0 md:p-3 rounded-none md:rounded-lg shadow-deep overflow-hidden mx-auto" 
           style={{
             width: 'min(100svw, 100vw)',
             gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
@@ -446,7 +433,7 @@ export const WordSearchGame = ({
           onMouseDown={startSelection} 
           onTouchStart={startSelection}
         >
-          {grid.map((row, rowIndex) => row.map((letter, colIndex) => <div key={`${rowIndex}-${colIndex}`} className={getCellClass(rowIndex, colIndex)}>
+          {grid.map((row, rowIndex) => row.map((letter, colIndex) => <div key={`${rowIndex}-${colIndex}`} className={`word-cell ${getCellClass(rowIndex, colIndex)}`}>
                 {letter}
               </div>))}
         </div>

@@ -148,6 +148,20 @@
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.7; transform: scale(1.1); }
   }
+
+  /* Mobile-specific styles for word search grid */
+  @media (max-width: 768px) {
+    .word-grid {
+      width: 95vw !important;
+      height: 95vw !important;
+      margin: 0 auto !important;
+      max-width: none !important;
+    }
+
+    .word-cell {
+      font-size: calc(3vw + 6px) !important;
+    }
+  }
 }
 
 @layer base {
