@@ -178,35 +178,55 @@ export const WordSearchGame = ({
   const [fortuneMessage, setFortuneMessage] = useState<string>('');
   const gridRef = useRef<HTMLDivElement>(null);
   const getPositionFromEvent = useCallback((e: any): Position | null => {
-    if (!gridRef.current) return null;
-    const rect = gridRef.current.getBoundingClientRect();
-    
-    // 獲取觸摸或滑鼠位置
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    
-    // 計算相對於格子區域的位置
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    
-    // 計算格子大小（扣除 padding）
-    const gridPadding = window.innerWidth >= 640 ? 24 : 16; // sm:p-3 = 12px*2, p-2 = 8px*2
-    const actualGridWidth = rect.width - gridPadding;
-    const actualGridHeight = rect.height - gridPadding;
-    const cellSize = actualGridWidth / GRID_SIZE;
-    
-    // 調整座標以考慮 padding
-    const adjustedX = x - gridPadding / 2;
-    const adjustedY = y - gridPadding / 2;
-    
-    const col = Math.floor(adjustedX / cellSize);
-    const row = Math.floor(adjustedY / cellSize);
-    
+    const gridEl = gridRef.current;
+    if (!gridEl) return null;
+    const rect = gridEl.getBoundingClientRect();
+
+    // 取得指標座標（支援觸控與滑鼠）
+    let clientX: number;
+    let clientY: number;
+    if ('touches' in e && e.touches?.length) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if ('changedTouches' in e && e.changedTouches?.length) {
+      clientX = e.changedTouches[0].clientX;
+      clientY = e.changedTouches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+
+    // 縮放比例修正（處理 CSS transform/縮放）
+    const scaleX = gridEl.offsetWidth > 0 ? gridEl.offsetWidth / rect.width : 1;
+    const scaleY = gridEl.offsetHeight > 0 ? gridEl.offsetHeight / rect.height : 1;
+
+    // 轉換為版面像素（與 offsetWidth/offsetHeight 同座標系）
+    let x = (clientX - rect.left) * scaleX;
+    let y = (clientY - rect.top) * scaleY;
+
+    // 扣除實際 padding（避免估算誤差）
+    const styles = window.getComputedStyle(gridEl);
+    const paddingLeft = parseFloat(styles.paddingLeft) || 0;
+    const paddingRight = parseFloat(styles.paddingRight) || 0;
+    const paddingTop = parseFloat(styles.paddingTop) || 0;
+    const paddingBottom = parseFloat(styles.paddingBottom) || 0;
+
+    const innerWidth = gridEl.offsetWidth - paddingLeft - paddingRight;
+    const innerHeight = gridEl.offsetHeight - paddingTop - paddingBottom;
+
+    x -= paddingLeft;
+    y -= paddingTop;
+
+    if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return null;
+
+    const cellW = innerWidth / GRID_SIZE;
+    const cellH = innerHeight / GRID_SIZE;
+
+    const col = Math.floor(x / cellW);
+    const row = Math.floor(y / cellH);
+
     if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
-      return {
-        row,
-        col
-      };
+      return { row, col };
     }
     return null;
   }, []);
@@ -413,7 +433,7 @@ export const WordSearchGame = ({
     }
   };
   return <div className="flex flex-col items-center gap-4 sm:gap-6 p-2 sm:p-4 w-full">
-      <Card className="p-3 sm:p-6 bg-card/80 backdrop-blur-sm game-container w-full max-w-xs sm:max-w-2xl">
+      <Card className="p-3 sm:p-6 bg-card/80 backdrop-blur-sm game-container w-full max-w-sm sm:max-w-2xl">
         <div className="text-center mb-4">
           <h2 className="text-xl sm:text-2xl font-bold glow-text mb-2">✨2025 REWIND✨</h2>
           <p className="text-sm sm:text-base text-muted-foreground">
@@ -421,7 +441,7 @@ export const WordSearchGame = ({
           </p>
         </div>
         
-        <div ref={gridRef} className="grid gap-0 w-full max-w-xs sm:max-w-lg mx-auto mb-6 bg-background/50 p-2 sm:p-3 rounded-lg shadow-deep touch-none" style={{
+        <div ref={gridRef} className="grid gap-0 w-full max-w-sm sm:max-w-lg md:max-w-xl mx-auto mb-6 bg-background/50 p-2 sm:p-3 rounded-lg shadow-deep touch-none" style={{
         gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
         aspectRatio: '1'
       }} onMouseDown={startSelection} onTouchStart={startSelection}>
