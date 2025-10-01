@@ -306,8 +306,8 @@ export const WordSearchGame = ({
   }, [isSelecting, updateSelection, endSelection]);
   const getCellClass = (row: number, col: number): string => {
     const baseClass = "w-full aspect-square border border-border/30 flex items-center justify-center font-mono cursor-pointer select-none transition-all duration-200";
-    // 使用 vw 單位讓字體自適應螢幕寬度
-    const fontSizeClass = "text-[clamp(14px,5vw,24px)] md:text-lg";
+    // 桌機版字體，手機版由 CSS media query 控制
+    const fontSizeClass = "text-base md:text-lg";
 
     // 檢查是否在當前選擇中
     if (currentSelection.some(pos => pos.row === row && pos.col === col)) {
@@ -424,9 +424,8 @@ export const WordSearchGame = ({
       <div className="w-full flex-1 flex flex-col items-center justify-start sm:justify-center game-container">
         <div 
           ref={gridRef} 
-          className="word-grid grid gap-0 w-[100vw] md:w-full md:max-w-[600px] bg-background/50 p-0 md:p-3 rounded-none md:rounded-lg shadow-deep overflow-hidden mx-auto" 
+          className="word-grid grid gap-0 w-full md:max-w-[600px] bg-background/50 p-0 md:p-3 rounded-none md:rounded-lg shadow-deep overflow-hidden mx-auto" 
           style={{
-            width: 'min(100svw, 100vw)',
             gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
             aspectRatio: '1'
           }} 

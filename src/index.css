@@ -152,14 +152,18 @@
   /* Mobile-specific styles for word search grid */
   @media (max-width: 768px) {
     .word-grid {
-      width: 95vw !important;
-      height: 95vw !important;
+      width: 100vw !important;
+      height: 100vw !important;
+      max-width: 100vw !important;
+      max-height: 100vw !important;
       margin: 0 auto !important;
-      max-width: none !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      padding: 0 !important;
     }
 
     .word-cell {
-      font-size: calc(3vw + 6px) !important;
+      font-size: calc(2.5vw + 6px) !important;
     }
   }
 }
