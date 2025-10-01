@@ -437,8 +437,9 @@ export const WordSearchGame = ({
       <div className="w-full flex-1 flex flex-col items-center justify-start sm:justify-center game-container">
         <div 
           ref={gridRef} 
-          className="grid gap-0 w-[100vw] md:w-full md:max-w-[600px] bg-background/50 p-0 md:p-3 rounded-none md:rounded-lg shadow-deep touch-none overflow-hidden mx-auto" 
+          className="grid gap-0 w-[100vw] md:w-full md:max-w-[600px] bg-background/50 p-0 md:p-3 rounded-none md:rounded-lg shadow-deep overflow-hidden mx-auto" 
           style={{
+            width: 'min(100svw, 100vw)',
             gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
             aspectRatio: '1'
           }} 
