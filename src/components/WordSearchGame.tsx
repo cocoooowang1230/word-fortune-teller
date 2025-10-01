@@ -331,7 +331,7 @@ export const WordSearchGame = ({
     };
   }, [isSelecting, updateSelection, endSelection]);
   const getCellClass = (row: number, col: number): string => {
-    const baseClass = "w-full aspect-square border border-border/30 flex items-center justify-center text-base sm:text-lg font-mono cursor-pointer select-none transition-all duration-200";
+    const baseClass = "w-full aspect-square border border-border/30 flex items-center justify-center text-sm sm:text-base font-mono cursor-pointer select-none transition-all duration-200";
 
     // 檢查是否在當前選擇中
     if (currentSelection.some(pos => pos.row === row && pos.col === col)) {
@@ -444,8 +444,8 @@ export const WordSearchGame = ({
           </p>
         </div>
         
-        <div ref={gridRef} className="grid gap-1 md:gap-0 w-full max-w-sm sm:max-w-lg md:max-w-xl mx-auto mb-6 bg-background/50 p-3 sm:p-4 rounded-lg shadow-deep touch-none overflow-auto md:overflow-visible" style={{
-        gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(44px, 1fr))`,
+        <div ref={gridRef} className="grid gap-0 w-full max-w-sm sm:max-w-lg md:max-w-xl mx-auto mb-6 bg-background/50 p-2 sm:p-3 rounded-lg shadow-deep touch-none overflow-hidden" style={{
+        gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
         aspectRatio: '1'
       }} onMouseDown={startSelection} onTouchStart={startSelection}>
           {grid.map((row, rowIndex) => row.map((letter, colIndex) => <div key={`${rowIndex}-${colIndex}`} className={getCellClass(rowIndex, colIndex)}>
