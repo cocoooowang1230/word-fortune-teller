@@ -324,20 +324,22 @@ export const WordSearchGame = ({
     };
   }, [isSelecting, updateSelection, endSelection]);
   const getCellClass = (row: number, col: number): string => {
-    const baseClass = "w-full aspect-square border border-border/30 flex items-center justify-center text-sm sm:text-base font-mono cursor-pointer select-none transition-all duration-200";
+    const baseClass = "w-full aspect-square border border-border/30 flex items-center justify-center font-mono cursor-pointer select-none transition-all duration-200";
+    // 使用 vw 單位讓字體自適應螢幕寬度
+    const fontSizeClass = "text-[3vw] sm:text-base md:text-lg";
 
     // 檢查是否在當前選擇中
     if (currentSelection.some(pos => pos.row === row && pos.col === col)) {
-      return `${baseClass} bg-mystical/60 text-foreground animate-pulse`;
+      return `${baseClass} ${fontSizeClass} bg-mystical/60 text-foreground animate-pulse`;
     }
 
     // 檢查是否在已選中的單字中
     for (const word of selectedWords) {
       if (word.positions.some(pos => pos.row === row && pos.col === col)) {
-        return `${baseClass} ${word.color} text-background font-bold`;
+        return `${baseClass} ${fontSizeClass} ${word.color} text-background font-bold`;
       }
     }
-    return `${baseClass} bg-grid-dark hover:bg-mystical/20 text-foreground/80`;
+    return `${baseClass} ${fontSizeClass} bg-grid-dark hover:bg-mystical/20 text-foreground/80`;
   };
   const generateFortune = (): string => {
     return "📖 2025 回顧小語：\n這些字就是你今年的代表詞，它們拼湊出你的年度故事。";
@@ -428,63 +430,74 @@ export const WordSearchGame = ({
       toast.error('生成圖片時發生錯誤，請稍後再試');
     }
   };
-  return <div className="flex flex-col items-center gap-4 sm:gap-6 p-2 sm:p-4 w-full">
-      <Card className="p-3 sm:p-6 bg-card/80 backdrop-blur-sm game-container w-full max-w-sm sm:max-w-2xl">
-        <div className="text-center mb-4">
-          <h2 className="text-xl sm:text-2xl font-bold glow-text mb-2">✨2025 REWIND✨</h2>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            已選擇 {selectedWords.length}/5 個單字
-          </p>
-        </div>
-        
-        <div ref={gridRef} className="grid gap-0 w-full max-w-sm sm:max-w-lg md:max-w-xl mx-auto mb-6 bg-background/50 p-2 sm:p-3 rounded-lg shadow-deep touch-none overflow-hidden" style={{
-        gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
-        aspectRatio: '1'
-      }} onMouseDown={startSelection} onTouchStart={startSelection}>
+  return <div className="flex flex-col items-center min-h-screen w-full bg-background overflow-x-hidden">
+      {/* 標題區 - 手機版縮小 */}
+      <div className="w-full text-center py-2 sm:py-4 px-2">
+        <h2 className="text-lg sm:text-2xl font-bold glow-text mb-1">✨2025 REWIND✨</h2>
+        <p className="text-xs sm:text-base text-muted-foreground">
+          已選擇 {selectedWords.length}/5 個單字
+        </p>
+      </div>
+      
+      {/* 遊戲區 - 手機版全螢幕 */}
+      <div className="w-full flex-1 flex flex-col items-center justify-start sm:justify-center game-container">
+        <div 
+          ref={gridRef} 
+          className="grid gap-0 w-full sm:w-[90vw] sm:max-w-2xl bg-background/50 p-1 sm:p-3 rounded-none sm:rounded-lg shadow-deep touch-none overflow-hidden mx-auto" 
+          style={{
+            gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
+            aspectRatio: '1',
+            maxWidth: '100vw'
+          }} 
+          onMouseDown={startSelection} 
+          onTouchStart={startSelection}
+        >
           {grid.map((row, rowIndex) => row.map((letter, colIndex) => <div key={`${rowIndex}-${colIndex}`} className={getCellClass(rowIndex, colIndex)}>
                 {letter}
               </div>))}
         </div>
 
-        {selectedWords.length > 0 && <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2 text-center">選中的單字:</h3>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {selectedWords.map((word, index) => <span key={index} className={`px-3 py-1 rounded-full text-background font-bold ${word.color}`}>
+        {/* 已選單字 - 手機版縮小 */}
+        {selectedWords.length > 0 && <div className="w-full px-2 sm:px-4 mt-2 sm:mt-4">
+            <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2 text-center">選中的單字:</h3>
+            <div className="flex flex-wrap gap-1 sm:gap-2 justify-center">
+              {selectedWords.map((word, index) => <span key={index} className={`px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-background text-xs sm:text-base font-bold ${word.color}`}>
                   {word.word}
                 </span>)}
             </div>
           </div>}
 
-        {!gameCompleted ? <div className="flex gap-3 justify-center flex-wrap">
-            <GameButton variant="ghost-neon" onClick={handleShuffle}>
-              🔄 重新洗牌
+        {/* 按鈕區 - 手機版縮小 */}
+        {!gameCompleted ? <div className="flex gap-2 sm:gap-3 justify-center flex-wrap px-2 mt-3 sm:mt-6 pb-4">
+            <GameButton variant="ghost-neon" onClick={handleShuffle} className="text-xs sm:text-base px-3 py-1.5 sm:px-4 sm:py-2">
+              🔄 洗牌
             </GameButton>
-            <GameButton variant="danger" onClick={handleReset}>
+            <GameButton variant="danger" onClick={handleReset} className="text-xs sm:text-base px-3 py-1.5 sm:px-4 sm:py-2">
               🧹 重置
             </GameButton>
-            <GameButton variant="neon" onClick={handleFinish} disabled={selectedWords.length === 0} glowing={selectedWords.length > 0}>
+            <GameButton variant="neon" onClick={handleFinish} disabled={selectedWords.length === 0} glowing={selectedWords.length > 0} className="text-xs sm:text-base px-3 py-1.5 sm:px-4 sm:py-2">
               ✨ 完成 ({selectedWords.length})
             </GameButton>
-          </div> : <div className="space-y-4">
+          </div> : <div className="space-y-3 sm:space-y-4 w-full px-2 sm:px-4 pb-4">
             {/* 結果訊息區塊 */}
-            <div className="text-center mt-6">
-              <div className="p-4 bg-mystical/10 rounded-lg border border-mystical/20 max-w-md mx-auto">
-                <div className="whitespace-pre-line text-foreground/90 leading-relaxed text-sm">
+            <div className="text-center mt-3 sm:mt-6">
+              <div className="p-3 sm:p-4 bg-mystical/10 rounded-lg border border-mystical/20 max-w-md mx-auto">
+                <div className="whitespace-pre-line text-foreground/90 leading-relaxed text-xs sm:text-sm">
                   {fortuneMessage}
                 </div>
               </div>
             </div>
             
             {/* 按鈕區塊 */}
-            <div className="flex gap-3 justify-center flex-wrap mt-6">
-              <GameButton variant="neon" onClick={handleShuffle}>
+            <div className="flex gap-2 sm:gap-3 justify-center flex-wrap mt-3 sm:mt-6">
+              <GameButton variant="neon" onClick={handleShuffle} className="text-xs sm:text-base px-3 py-1.5 sm:px-4 sm:py-2">
                 🎮 再玩一次
               </GameButton>
-              <GameButton variant="ghost-neon" onClick={handleShareImage}>
-                📤 分享我的結果 ✨
+              <GameButton variant="ghost-neon" onClick={handleShareImage} className="text-xs sm:text-base px-3 py-1.5 sm:px-4 sm:py-2">
+                📤 分享結果 ✨
               </GameButton>
             </div>
           </div>}
-      </Card>
+      </div>
     </div>;
 };
